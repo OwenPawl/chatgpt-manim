@@ -55,6 +55,8 @@ class Auth:
 
     @property
     def challenge(self):
+        if not self.issuer:
+            return 'Bearer realm="Manim Animation"'
         return f'Bearer resource_metadata="{self.base_url}/.well-known/oauth-protected-resource"'
 
     def metadata(self):

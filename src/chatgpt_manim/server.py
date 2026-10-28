@@ -256,7 +256,11 @@ def create_app(service):
         max_request_body_size=262144,
         transport_security=TransportSecuritySettings(
             enable_dns_rebinding_protection=True,
-            allowed_hosts=[hostname],
+            allowed_hosts=[
+                hostname,
+                f"127.0.0.1:{os.getenv('PORT', '8787')}",
+                f"localhost:{os.getenv('PORT', '8787')}",
+            ],
             allowed_origins=[service.auth.base_url],
         ),
     )
@@ -276,6 +280,8 @@ def create_app(service):
         return JSONResponse({"status": "ok", "version": "0.1.0"})
 
     async def metadata(request):
+        if not service.auth.issuer:
+            return JSONResponse({"error": "OAuth is not configured"}, status_code=404)
         return JSONResponse(service.auth.metadata())
 
     app.router.routes.extend(

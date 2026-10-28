@@ -38,27 +38,67 @@ in `assets/player-screenshot.png` is from that test. Fullscreen was denied by th
 host and the component displayed its fallback error; fullscreen availability
 must be rechecked in the target host.
 
-## Not yet verified
+## Actual ChatGPT Work verification
 
-- Actual ChatGPT installation, UI rendering, positive/negative automatic model
-  selection and follow-up invocations. The signed-in ChatGPT custom-server dialog
-  was inspected, but it cannot use the development fixed bearer credential.
+On 2026-10-27, the private Secure MCP Tunnel and personal plugin were provisioned
+and connected in the account. The following were observed in Chrome, using
+ChatGPT Work's GPT-6.1 Sol Light setting:
+
+- Explicitly selected request: blue circle → green square, 720p, 5.5 seconds.
+- Follow-up: twice as slow and orange square, 11 seconds, same title and parent
+  animation ID, with `pacing=2` and the changed replacement color in storage.
+- Untagged request: “Animate a blue triangle rotating 90 degrees, then moving to
+  the right. Keep it short and display the playable animation here.” The model
+  selected Manim automatically and produced a real 3-second MP4.
+- Negative follow-up: “In one sentence, what is 2 + 2? Do not create an animation
+  or use any tools.” Answered “2 + 2 equals 4.” with no new animation/tool call.
+- Actual HTML5 playback was observed in both the inline response card and
+  ChatGPT's side panel. Playback speed selected 1.5×. The revision played through
+  to the orange final frame at 0:11 / 0:11. Screenshots are
+  `assets/chatgpt-inline.png` and `assets/chatgpt-revision.png`.
+
+**Host limitations:** each tested initial app load failed; the host's **Try again**
+button then loaded the player. This is a repeatable workaround, not a verified
+permanent fix. Fullscreen was rejected by the host and the player displayed its
+fallback error. The account's pre-existing “Enforce CSP for custom apps” switch
+was off; it was left unchanged. The server returns standard CSP metadata, but
+strict enforcement in ChatGPT has not been verified.
+
+The bundled skill is present in the portable repository package. The installed
+cloud plugin is the MCP connection with its tool descriptions; it does not yet
+include the repository skill. The untagged invocation above tests discovery of
+that installed connection. A single positive and negative case is evidence of
+those runs, not a general guarantee of correct model selection.
+
+A separate standard **Chat** conversation explicitly requested the installed Manim
+plugin. It rendered a moving blue circle and played inline after the same host
+retry. Standard Chat showed a “This response couldn’t load” message for the text
+response, although the tool result and player worked. Untagged selection and
+follow-up revision in standard Chat were not tested. These results apply to this
+account and tested UI; availability can differ across accounts.
+
+## Not yet verified or complete
+
 - A stable production deployment and external OAuth provider integration.
-- The private Secure MCP Tunnel path: Platform tunnel settings required login.
+- Public plugin directory submission/approval.
 - Multi-replica operation (explicitly unsupported), production load/abuse testing,
   or an independent security audit.
 - Docker Compose runtime socket integration; the native controller with rootless
   Podman workers is the verified runtime configuration.
 
-`tests/prompts.json` contains labeled evaluation cases. Its fixture/schema test
-only checks the dataset; it does **not** prove that a model selects or avoids a
-tool. Record actual ChatGPT runs in the table below after installation.
+`tests/prompts.json` contains additional labeled cases. Its fixture/schema test
+checks the dataset; it does **not** prove model selection for every prompt.
 
 | Environment | Positive selection | Negative avoidance | Follow-up revision | Embedded display |
 | --- | --- | --- | --- | --- |
-| ChatGPT Work | Not run | Not run | Not run | Not run |
-| Standard Chat | Not run | Not run | Not run | Not run |
+| ChatGPT Work | Explicit and untagged passed | One explicit no-animation case passed | Pacing + color passed | Inline + side panel, after host retry |
+| Standard Chat | Explicitly named plugin passed | Not run | Not run | Inline playback after host retry |
 | MCP client + bridge test host | Direct tool call passed | Not a model test | Service test passed | Passed |
+
+The current fast suite has 31 passing tests, including new regression checks for
+private loopback MCP authentication, rejected foreign Host headers, bearer-only
+OAuth discovery behavior, and unchanged OAuth resource metadata. Three separate
+real-worker integration checks passed in the initial run and run again in CI.
 
 Both worker and server container images built successfully. A network-disabled
 server-image check confirmed that the installed Python package includes its UI

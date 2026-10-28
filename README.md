@@ -7,14 +7,18 @@ scenes and presents an HTML5 player through MCP Apps. The conversational model a
 a bounded scene specification; the service validates, renders, stores, and displays it.
 No second LLM API call is needed.
 
-> **Release status:** working, tested developer preview. Real rendering, HTTPS MCP,
-> and the embedded player have been verified. ChatGPT installation and model-driven
-> invocation have **not** been verified. Stable hosting and OAuth configuration remain
-> deployment prerequisites. This project is not affiliated with or endorsed by OpenAI.
+> **Release status:** tested developer preview, installed in a personal ChatGPT account.
+> ChatGPT Work selected the tool from an untagged animation request, rendered a real
+> MP4, played it inline, and preserved a follow-up revision. Initial app loads needed
+> the host's **Try again** control; this is not a permanently resolved issue. The
+> private runtime and temporary HTTPS media tunnel depend on the local machine.
+> Stable production hosting and public directory approval remain outstanding.
+> This project is not affiliated with or endorsed by OpenAI.
 
-![Real Fourier animation in the MCP Apps test host](assets/player-screenshot.png)
+![Real Manim revision inside ChatGPT Work](assets/chatgpt-revision.png)
 
-*Screenshot of the actual player in the included bridge test host, not a ChatGPT chat.*
+*Actual ChatGPT Work: the follow-up doubled duration to 11 seconds and changed the
+final square to orange. The same player also worked in the inline response card.*
 
 ## What it does
 
@@ -82,14 +86,18 @@ same player and documented MCP Apps bridge messages; it is not the real ChatGPT 
 ## Install in ChatGPT
 
 See [installation](docs/installation.md) for the exact supported flow. Current
-OpenAI documentation instructs testing custom plugins in **ChatGPT Work**. Standard
-Chat surface availability must be checked independently; native automatic animation
-integration is not claimed.
+OpenAI documentation instructs testing custom plugins in **ChatGPT Work**. Work
+passed explicit and untagged invocation plus revision tests. A separate standard
+**Chat** test explicitly invoked the plugin and played the result inline, with
+host loading issues documented in the verification record. Native automatic
+animation integration is not claimed.
 
 The current custom-server form supports OAuth, no authentication, or mixed OAuth.
-It does not accept a fixed bearer key. **Do not select “No authentication” for this
-protected service.** Configure a suitable OAuth 2.1 provider, or use a private
-Secure MCP Tunnel with the required Platform authorization.
+It does not accept a fixed bearer key for a public Server URL. Configure OAuth
+for that route. For the verified private Secure MCP Tunnel route, select **Tunnel**
+and **No authentication** in ChatGPT while tunnel-client supplies the local server
+bearer credential. The tunnel itself is authenticated and workspace-scoped; the
+public MCP endpoint remains protected. See the precise configuration below.
 
 ## Deployment and security
 

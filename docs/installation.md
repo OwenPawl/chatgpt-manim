@@ -2,12 +2,21 @@
 
 ## Verified surface and current status
 
-Official OpenAI plugin quickstart instructions use ChatGPT **Work**. On 2026-10-27,
-the signed-in personal Plugins page was inspected. Its **Add custom MCP server**
-dialog offered Server URL or Tunnel and OAuth / No authentication / OAuth or no
-authentication. No fixed API-key option was present. The plugin has not been
-registered or installed in that account, and no actual ChatGPT-hosted invocation or
-embedded-player test has been completed.
+On 2026-10-27 (America/Los_Angeles), **Manim Animation** was registered and connected
+in the personal ChatGPT Plugins directory using a Secure MCP Tunnel. ChatGPT Work
+completed an explicitly selected render, a natural-language follow-up revision,
+and an untagged animation request. The player displayed and played real MP4s both
+inline and in ChatGPT's side panel. Standard **Chat** also invoked the explicitly named plugin and played its result
+inline after a host retry; untagged selection and revision were only tested in
+Work. Standard Chat also displayed a text-response loading error. The bundled
+reusable skill remains in this
+repository; the installed cloud connection currently consists of the MCP app and
+its tool descriptions. Untagged selection was observed, not guaranteed.
+
+The first host iframe load failed in the tested runs; **Try again** loaded the
+player successfully. No permanent fix is claimed. Fullscreen was denied by this
+host and the player showed its supported fallback. No security settings were
+weakened to perform these tests.
 
 A portable package, public GitHub repository, personal installation, and approval
 in the universal public directory are separate milestones. None implies the others.
@@ -35,12 +44,57 @@ Record positive, negative and follow-up outcomes in the evaluation log.
 ## Private tunnel alternative
 
 [Secure MCP Tunnel](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels)
-can connect a private server without public ingress. It requires a Platform tunnel
-ID, a restricted runtime API key, and association with the intended ChatGPT
-workspace. Configure tunnel-client to forward to the local authenticated server,
-including its upstream bearer header as supported by tunnel-client. This path was
-not provisioned or verified. It does not satisfy public plugin submission; media
-also needs an origin reachable by the iframe.
+was verified with the official tunnel-client v0.0.18. It connects the private MCP
+server through outbound traffic to OpenAI.
+
+1. Start the authenticated server at `http://127.0.0.1:8787/mcp`. Keep a reachable
+   HTTPS media origin configured in `MANIM_BASE_URL`.
+2. In Platform organization settings, create a tunnel scoped to your ChatGPT
+   workspace. Create a restricted runtime key with only **Tunnels: Read + Use**.
+   The verified installation used a seven-day expiration, with model/data
+   permissions disabled. Store credentials in protected ignored files.
+3. Configure the official client profile using the example in
+   [tunnel-client configuration](https://github.com/openai/tunnel-client/blob/master/docs/configuration.md).
+   Use file references, not literal secrets:
+
+   ```yaml
+   config_version: 1
+   control_plane:
+     base_url: https://api.openai.com
+     tunnel_id: YOUR_TUNNEL_ID
+     api_key: file:/private/path/control-plane.key
+   mcp:
+     server_urls:
+       - channel: main
+         url: http://127.0.0.1:8787/mcp
+     extra_headers:
+       Authorization: file:/private/path/upstream-authorization
+     discovery_extra_headers:
+       Authorization: file:/private/path/upstream-authorization
+   ```
+
+   The upstream authorization file contains `Bearer ` followed by the server's
+   `MANIM_API_KEY`; it is distinct from the Platform runtime key. Protect both
+   files with mode 0600. In v0.0.18, `runtimes connect` rewrote the profile and
+   removed these extra headers, so the verified path runs the prepared profile
+   with `tunnel-client run --profile manim --profile-dir /private/profiles`.
+   Verify readiness **and** successful authenticated MCP initialization.
+4. In ChatGPT Plugins choose **+ → Add custom MCP server → Tunnel**, paste the
+   tunnel ID and select **No authentication**, then **Create as a plugin** and
+   **Connect Manim Animation**. Here the private tunnel authenticates the
+   connection and injects the upstream bearer; the public server is not anonymous.
+5. Open the personal plugin and **Try in chat**, choose **Work**, then test a
+   render and “Make it twice as slow.” If the host says it could not display
+   the app, try its **Try again** button; this workaround was required in testing.
+
+This is a personal development installation, not public directory submission.
+The local server, tunnel-client, and temporary Cloudflare media tunnel must keep
+running. They are not configured to restart after reboot. The Platform runtime
+key expires after seven days; expired credentials must be renewed through the
+normal authorized process. A restarted quick tunnel may change the media origin,
+requiring a server configuration update and a fresh tool result. For durable
+operation use a stable HTTPS origin and a supervised deployment. No paid services
+were provisioned.
 
 ## Local portable package
 

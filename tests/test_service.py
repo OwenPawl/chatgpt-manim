@@ -48,13 +48,11 @@ def rpc(c, name, args=None, id=2):
 def test_auth_discovery_and_mcp(service):
     with TestClient(create_app(service)) as c:
         assert c.post("/mcp").status_code == 401
+        assert "resource_metadata" not in c.post("/mcp").headers["www-authenticate"]
         assert (
             c.post("/mcp", headers={"Authorization": "Bearer wrong"}).status_code == 401
         )
-        assert (
-            c.get("/.well-known/oauth-protected-resource").json()["resource"]
-            == "http://testserver/mcp"
-        )
+        assert c.get("/.well-known/oauth-protected-resource").status_code == 404
         init = rpc(
             c,
             "initialize",
@@ -302,3 +300,38 @@ async def test_oauth_signature_audience_expiry(monkeypatch):
             await auth.identity(
                 "Bearer " + jwt.encode(claims | change, key, algorithm="RS256")
             )
+
+
+def test_tunnel_loopback_host_remains_authenticated(service):
+    with TestClient(create_app(service), base_url="http://127.0.0.1:8787") as c:
+        assert c.post("/mcp").status_code == 401
+        result = rpc(
+            c,
+            "initialize",
+            {
+                "protocolVersion": "2025-11-25",
+                "capabilities": {},
+                "clientInfo": {"name": "tunnel", "version": "1"},
+            },
+        )
+        assert result["result"]["serverInfo"]["name"] == "Manim Animation"
+        blocked = c.post(
+            "/mcp",
+            headers={"Host": "attacker.example", "Authorization": "Bearer " + "x" * 40},
+            json={"jsonrpc": "2.0", "id": 4, "method": "tools/list"},
+        )
+        assert blocked.status_code == 421
+
+
+def test_oauth_metadata_is_advertised_when_configured(service):
+    service.auth = Auth(
+        "http://testserver",
+        issuer="https://identity.example",
+        audience="manim",
+        jwks_url="https://identity.example/jwks",
+    )
+    with TestClient(create_app(service)) as c:
+        assert "resource_metadata" in c.post("/mcp").headers["www-authenticate"]
+        response = c.get("/.well-known/oauth-protected-resource")
+        assert response.status_code == 200
+        assert response.json()["authorization_servers"] == ["https://identity.example"]
