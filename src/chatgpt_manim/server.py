@@ -7,18 +7,33 @@ import json
 import os
 import re
 import time
+from typing import Literal
+from pydantic import BaseModel
 from mcp.server.mcpserver import MCPServer, Context
 from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import ToolAnnotations, CallToolResult, TextContent
 from starlette.responses import JSONResponse, FileResponse, HTMLResponse
 from starlette.routing import Route
-from .scene import SceneSpec
+from .scene import SceneSpec, TEX_COMMANDS
 from .renderer import ContainerRenderer
 from .store import Store
 from .auth import Auth, Guard
 
 ROOT = Path(__file__).resolve().parents[2]
 UI_URI = "ui://manim/player-v1.html"
+
+
+class AnimationResult(BaseModel):
+    """Schema for model-visible structuredContent, separate from the MCP envelope."""
+
+    id: str
+    status: Literal["queued", "rendering", "ready", "failed"]
+    error: str | None
+    parent: str | None
+    instructions: str
+    created: float
+    spec: SceneSpec
+    cached: bool
 
 
 class Service:
@@ -149,11 +164,13 @@ def create_app(service):
         idempotentHint=True,
     )
 
+    # MCP SDK validates envelope.structuredContent against each annotated output model.
+    # Returning CallToolResult preserves widget-only _meta and error envelopes.
     def owner(ctx):
         return ctx.request_context.request.state.owner
 
     @mcp.tool(annotations=write, meta=ui_meta)
-    async def render_animation(spec: SceneSpec, ctx: Context) -> CallToolResult:
+    async def render_animation(spec: SceneSpec, ctx: Context) -> AnimationResult:
         """Use when the user asks to animate a mathematical or computational concept. Submit a complete declarative scene and return a job ID; poll get_animation. Do not use for unrelated requests or static explanations that suffice."""
         try:
             row, cached = service.store.submit(owner(ctx), spec)
@@ -164,7 +181,7 @@ def create_app(service):
             )
 
     @mcp.tool(annotations=readonly, meta=ui_meta)
-    async def get_animation(animation_id: str, ctx: Context) -> CallToolResult:
+    async def get_animation(animation_id: str, ctx: Context) -> AnimationResult:
         """Get render status, errors, full original scene specification and a refreshed playable result. Use before revising an existing animation and to poll pending jobs."""
         try:
             return service.result(service.store.get(owner(ctx), animation_id))
@@ -180,7 +197,7 @@ def create_app(service):
         ctx: Context,
         spec: SceneSpec | None = None,
         pacing: float | None = None,
-    ) -> CallToolResult:
+    ) -> AnimationResult:
         """Revise an existing scene preserving lineage. For slowdown supply pacing (absolute duration multiplier); otherwise the model must supply the complete updated spec. Instructions record the user's intent; the server does not interpret natural language. Original animation is retained."""
         try:
             old = service.store.get(owner(ctx), animation_id)
@@ -209,6 +226,7 @@ def create_app(service):
             "format": "MP4 H.264 yuv420p",
             "source": "declarative JSON only",
             "max_duration_seconds": 90,
+            "supported_math_commands": sorted(TEX_COMMANDS),
             "resolutions": ["480p", "720p", "1080p"],
             "schema": SceneSpec.model_json_schema(),
         }

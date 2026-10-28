@@ -70,6 +70,12 @@ def test_auth_discovery_and_mcp(service):
         render = next(t for t in tools if t["name"] == "render_animation")
         assert render["_meta"]["ui"]["resourceUri"].startswith("ui://")
         assert render["annotations"]["destructiveHint"] is False
+        assert render["outputSchema"]["properties"]["status"]["enum"] == [
+            "queued",
+            "rendering",
+            "ready",
+            "failed",
+        ]
         ui = rpc(c, "resources/read", {"uri": "ui://manim/player-v1.html"})["result"][
             "contents"
         ][0]

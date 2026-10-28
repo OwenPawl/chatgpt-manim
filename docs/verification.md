@@ -63,3 +63,8 @@ tool. Record actual ChatGPT runs in the table below after installation.
 Both worker and server container images built successfully. A network-disabled
 server-image check confirmed that the installed Python package includes its UI
 resource (the wheel does not depend on a source checkout).
+
+A second HTTPS smoke run revised the Fourier scene to twice its original pacing,
+rendered it to completion, verified its 29.8-second MP4 duration, and repeated the
+same revision to confirm cache reuse without another render. Tool discovery also
+advertises a validated structured output schema for animation results.
