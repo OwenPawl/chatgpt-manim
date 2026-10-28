@@ -1,0 +1,14 @@
+[
+ {"prompt":"Animate how a Fourier transform works.","expected":"invoke","reason":"Explicit dynamic mathematical explanation"},
+ {"prompt":"Show a triangle rotating, then translating.","expected":"invoke","reason":"Motion is the requested explanation"},
+ {"prompt":"Animate a hash collision using separate chaining.","expected":"invoke","reason":"Sequential computational process"},
+ {"prompt":"Show the intermediate steps of insertion sort as an animation.","expected":"invoke","reason":"Explicit animated algorithm"},
+ {"prompt":"Make that animation twice as slow.","expected":"revise","reason":"Retrieve prior spec and double pacing; retain lineage"},
+ {"prompt":"Highlight the frequency components in yellow.","context":"A Fourier animation was just rendered.","expected":"revise","reason":"Preserve prior source while changing colors"},
+ {"prompt":"Define the Fourier transform in one sentence.","expected":"avoid","reason":"Static text requested"},
+ {"prompt":"Plot sin(x) as a static graph.","expected":"avoid","reason":"Static visual is explicitly sufficient"},
+ {"prompt":"Explain separate chaining, without animation.","expected":"avoid","reason":"Explicit exclusion"},
+ {"prompt":"What is 7 times 8?","expected":"avoid","reason":"No dynamic visualization needed"},
+ {"prompt":"Draft an email to my professor.","expected":"avoid","reason":"Unrelated task"},
+ {"prompt":"Translate this paragraph into Spanish.","expected":"avoid","reason":"Unrelated task"}
+]

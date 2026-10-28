@@ -1,0 +1,25 @@
+name: Validate and render
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+          cache: pip
+      - run: pip install -r requirements.lock && pip install -e '.[test]'
+      - run: pytest -q
+      - run: sudo apt-get update && sudo apt-get install -y podman
+      - run: podman build -f worker/Dockerfile -t localhost/chatgpt-manim-worker:0.1.0 .
+      - run: MANIM_INTEGRATION=1 pytest -q tests/test_integration.py
+      - run: docker build -t chatgpt-manim-server:ci .
+      - run: python scripts/render_examples.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: example-animations
+          path: assets/*.mp4

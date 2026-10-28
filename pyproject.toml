@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "chatgpt-manim"
+version = "0.1.0"
+description = "Secure declarative Manim rendering through MCP and an embedded MCP Apps player"
+requires-python = ">=3.12"
+dependencies = ["mcp==2.3.0", "pydantic==2.14.1", "uvicorn==0.54.0", "PyJWT[crypto]==2.15.1"]
+[project.optional-dependencies]
+test = ["pytest>=8,<10", "pytest-asyncio>=0.26,<2", "httpx>=0.28,<1", "jsonschema>=4,<5"]
+[project.scripts]
+chatgpt-manim = "chatgpt_manim.server:main"
+[tool.setuptools.packages.find]
+where = ["src"]
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = ["integration: requires built rendering container"]
+[tool.setuptools.package-data]
+chatgpt_manim = ["ui/*.html"]

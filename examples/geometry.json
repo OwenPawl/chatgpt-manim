@@ -1,0 +1,114 @@
+{
+  "title": "Geometry \u00b7 rotation and translation",
+  "description": "Watch a triangle rotate 90 degrees about its center, then translate two units to the right. Both transformations preserve lengths and angles.",
+  "resolution": "720p",
+  "fps": 30,
+  "objects": [
+    {
+      "id": "title",
+      "kind": "text",
+      "text": "Rotation preserves shape and distance",
+      "position": [
+        0,
+        3
+      ],
+      "font_size": 34,
+      "color": "#E5EDF8"
+    },
+    {
+      "id": "shape",
+      "kind": "polygon",
+      "points": [
+        [
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "color": "#70D6FF",
+      "fill_opacity": 0.25
+    },
+    {
+      "id": "formula",
+      "kind": "math",
+      "text": "R(\\theta)=\\begin{pmatrix}\\cos\\theta&-\\sin\\theta\\\\\\sin\\theta&\\cos\\theta\\end{pmatrix}",
+      "position": [
+        0,
+        -2.3
+      ],
+      "font_size": 30,
+      "color": "#E5EDF8"
+    },
+    {
+      "id": "caption",
+      "kind": "text",
+      "text": "90\u00b0 rotation, then a translation",
+      "position": [
+        0,
+        2.15
+      ],
+      "font_size": 26,
+      "color": "#E5EDF8"
+    }
+  ],
+  "steps": [
+    {
+      "action": "write",
+      "target": "title",
+      "duration": 1
+    },
+    {
+      "action": "create",
+      "target": "shape",
+      "duration": 1
+    },
+    {
+      "action": "write",
+      "target": "formula",
+      "duration": 1.5
+    },
+    {
+      "action": "write",
+      "target": "caption",
+      "duration": 1
+    },
+    {
+      "action": "rotate",
+      "target": "shape",
+      "duration": 2,
+      "angle": 1.5707963267948966
+    },
+    {
+      "action": "wait",
+      "target": null,
+      "duration": 1
+    },
+    {
+      "action": "move",
+      "target": "shape",
+      "duration": 2,
+      "position": [
+        2,
+        0
+      ]
+    },
+    {
+      "action": "color",
+      "target": "shape",
+      "duration": 1,
+      "color": "#FFD166"
+    },
+    {
+      "action": "wait",
+      "target": null,
+      "duration": 2
+    }
+  ]
+}

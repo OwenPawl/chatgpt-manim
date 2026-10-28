@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "chatgpt-manim",
+  "version": "0.1.0",
+  "description": "Render and revise mathematical and computational animations with Manim and an embedded MCP Apps player.",
+  "author": {"name": "OwenPawl"},
+  "repository": "https://github.com/OwenPawl/chatgpt-manim",
+  "license": "MIT",
+  "keywords": ["animation", "mathematics", "manim", "mcp"],
+  "extensions": {"com.openai": {"interface": {"displayName": "Manim Animation", "shortDescription": "Animate mathematics and algorithms", "longDescription": "Create real Manim animations from safe declarative scenes, play them inline, and refine them in conversation.", "developerName": "OwenPawl", "category": "Productivity", "capabilities": ["Read", "Write"], "defaultPrompt": ["Animate a Fourier decomposition", "Show a hash collision using separate chaining"], "brandColor": "#146D85"}}}
+}
